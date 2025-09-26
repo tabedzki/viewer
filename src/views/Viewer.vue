@@ -804,8 +804,8 @@ export default defineComponent({
 					return file
 				}).filter(file => file !== undefined)
 
-				// store current position
-				this.currentIndex = this.fileList.findIndex(file => file.filename === fileInfo.filename)
+				// store current position - must be done after filtering
+				this.currentIndex = this.fileList.findIndex(file => file && file.filename === fileInfo.filename)
 				this.updatePreviousNext()
 			} else {
 				this.currentIndex = 0
@@ -822,6 +822,9 @@ export default defineComponent({
 		 * @param {object} fileInfo the opened file info
 		 */
 		openFileFromList(fileInfo) {
+			if (!fileInfo) {
+				return
+			}
 			// override mimetype if existing alias
 			const mime = fileInfo.mime
 			this.currentFile = new File(fileInfo, mime, this.components[mime])
@@ -1075,9 +1078,11 @@ export default defineComponent({
 			}
 
 			const fileInfo = this.fileList[this.currentIndex]
-			this.openFileFromList(fileInfo)
-			this.Viewer.onPrev(fileInfo)
-			this.updateTitle(this.currentFile.basename)
+			if (fileInfo) {
+				this.openFileFromList(fileInfo)
+				this.Viewer.onPrev(fileInfo)
+				this.updateTitle(this.currentFile.basename)
+			}
 		},
 
 		/**
@@ -1090,10 +1095,11 @@ export default defineComponent({
 			}
 
 			const fileInfo = this.fileList[this.currentIndex]
-			this.openFileFromList(fileInfo)
-			this.Viewer.onNext(fileInfo)
-
-			this.updateTitle(this.currentFile.basename)
+			if (fileInfo) {
+				this.openFileFromList(fileInfo)
+				this.Viewer.onNext(fileInfo)
+				this.updateTitle(this.currentFile.basename)
+			}
 		},
 
 		/**
